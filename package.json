@@ -1,0 +1,96 @@
+{
+    "name": "rc-helper",
+    "displayName": "rc helper",
+    "description": "search your project components, the automatic insert it to your pages",
+    "version": "1.0.0",
+    "publisher": "guozhaodong",
+    "engines": {
+        "vscode": "^1.8.0"
+    },
+    "categories": [
+        "react"
+    ],
+    "icon": "media/component.png",
+    "activationEvents": [
+        "*",
+        "onView:materialSetting",
+        "onCommand:material.start"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "material",
+                    "title": "组件资产",
+                    "icon": "media/component.svg"
+                }
+            ]
+        },
+        "views": {
+            "material": [
+                {
+                    "id": "materialSetting",
+                    "name": "设置"
+                }
+            ]
+        },
+        "menus": {
+            "editor/context": [
+                {
+                    "command": "material.start",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "material.start",
+                "title": "插入组件"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "material.start",
+                "key": "ctrl+alt+M",
+                "mac": "cmd+alt+M"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run package",
+        "compile": "webpack",
+        "watch": "webpack --watch",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "npm run compile-tests && npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/babel__traverse": "^7.14.2",
+        "@types/glob": "^7.1.4",
+        "@types/mocha": "^9.0.0",
+        "@types/node": "14.x",
+        "@types/node-fetch": "^3.0.3",
+        "@types/vscode": "^1.8.0",
+        "@typescript-eslint/eslint-plugin": "^5.1.0",
+        "@typescript-eslint/parser": "^5.1.0",
+        "@vscode/test-electron": "^1.6.2",
+        "eslint": "^8.1.0",
+        "glob": "^7.1.7",
+        "mocha": "^9.1.3",
+        "ts-loader": "^9.2.5",
+        "typescript": "^4.4.4",
+        "webpack": "^5.52.1",
+        "webpack-cli": "^4.8.0"
+    },
+    "dependencies": {
+        "@babel/parser": "^7.16.7",
+        "@babel/traverse": "^7.16.7",
+        "node-fetch": "^2.6.6",
+        "request": "^2.88.2",
+        "request-promise": "^4.2.6"
+    }
+}
