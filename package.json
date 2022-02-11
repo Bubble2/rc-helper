@@ -2,7 +2,7 @@
     "name": "rc-helper",
     "displayName": "RC Helper",
     "description": "search your project components, the automatic insert it to your pages",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "guozhaodong",
     "repository": {
         "url": "https://github.com/Bubble2/rc-helper.git"

@@ -86,7 +86,13 @@ export function activate(context: vscode.ExtensionContext) {
                 let res: any = {}
                 try {
                     res = await vscode.workspace.fs.readDirectory(componentFoldersUri)
-                    for (let j = 0; j < res.length; j++) {
+                } catch (error) {
+                    console.log('vscode.workspace.fs.readDirectory(componentFoldersUri)', error)
+                }
+
+
+                for (let j = 0; j < res.length; j++) {
+                    try {
                         const snapshotFilePath = vscode.Uri.file(componentFolders[i].path + '/' + res[j][0] + '/' + 'snapshot.jpg')
                         // console.log('snapshotFilePath',snapshotFilePath)
                         const statSnapshotFile = await vscode.workspace.fs.stat(snapshotFilePath)
@@ -94,9 +100,9 @@ export function activate(context: vscode.ExtensionContext) {
                         if (statSnapshotFile) {
                             snapshot[res[j][0]] = `${currentPanel.webview.asWebviewUri(snapshotFilePath)}`
                         }
+                    } catch (error) {
+                        console.log(error)
                     }
-                } catch (error) {
-                    console.log(error)
                 }
                 directories.push({ ...componentFolders[i], files: res, snapshot })
             }
