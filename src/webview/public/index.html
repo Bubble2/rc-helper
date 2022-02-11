@@ -42,7 +42,7 @@
         window.addEventListener('message', event => {
             const message = event.data; // The JSON data our extension sent
             if (message.command === 'getDirectories') {
-                window.directories = message;
+                window.directories = message.directories;
                 window.postMessage({
                     command: 'getDirectoriesToJs',
                     directories: message

@@ -12,29 +12,10 @@
     ],
     "icon": "media/component.png",
     "activationEvents": [
-        "*",
-        "onView:materialSetting",
         "onCommand:material.start"
     ],
     "main": "./dist/extension.js",
     "contributes": {
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "material",
-                    "title": "组件资产",
-                    "icon": "media/component.svg"
-                }
-            ]
-        },
-        "views": {
-            "material": [
-                {
-                    "id": "materialSetting",
-                    "name": "设置"
-                }
-            ]
-        },
         "menus": {
             "editor/context": [
                 {

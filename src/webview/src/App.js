@@ -1,17 +1,18 @@
 import { Tabs, Card, Input } from 'antd';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import style from './app.module.css';
-const { Search } = Input;
+import Setting from './setting'
 
-function App () {
+
+window.vscodeInstance = window.acquireVsCodeApi();
+
+function App() {
 
     const [data, setData] = useState([]);
     const [tabKey, setTabKey] = useState();
     const [searchKey, setSearchKey] = useState();
-    const vscodeRef = useRef();
 
     useEffect(() => {
-        vscodeRef.current = window.acquireVsCodeApi();
         // const message = window.message;
 
         if (window.directories) {
@@ -36,7 +37,7 @@ function App () {
     }
 
     const insertComponent = (componentName, cateInfo) => {
-        vscodeRef.current.postMessage({
+        window.vscodeInstance.postMessage({
             command: 'insertComponent',
             text: componentName,
             cateInfo
@@ -62,7 +63,7 @@ function App () {
     const filterFiles = useMemo(() => {
         if (files && searchKey) {
             return files.filter(item => {
-                return item[0].indexOf(searchKey) > -1
+                return item[0].toUpperCase().indexOf(searchKey.toUpperCase()) > -1
             })
         }
         return files
@@ -72,7 +73,14 @@ function App () {
         setSearchKey(e.target.value);
     }
 
-    const contentHtml = (
+    const openSetting = () => {
+        window.vscodeInstance.postMessage({
+            command: 'settingData',
+            settingData: []
+        })
+    }
+
+    const contentHtml = filterFiles && filterFiles.length > 0 ? (
         <div>
             <div className={style.search}>
                 <Input
@@ -88,31 +96,49 @@ function App () {
                     filterFiles && filterFiles.length > 0 && filterFiles.map(item => {
                         return (
                             <li className={style.card}>
-                                <Card key={item[0]} onClick={() => insertComponent(item[0], curObj)}>{item[0]}{
-                                    curObj.snapshot && curObj.snapshot[item[0]] && <img src={curObj.snapshot[item[0]]} />
-                                }</Card>
+                                <Card key={item[0]} onClick={() => insertComponent(item[0], curObj)}>
+                                    <div className={style["card-name"]}>{item[0]}</div>
+                                    {
+                                        curObj.snapshot && curObj.snapshot[item[0]] &&
+                                        (
+                                            <div className={style["card-img-wrap"]}>
+                                                <div className={style["card-img-outer"]}>
+                                                    <img src={curObj.snapshot[item[0]]} />
+                                                </div>
+                                            </div>
+                                        )
+                                    }
+                                </Card>
                             </li>
                         )
                     })
                 }
             </ul>
         </div>
-    )
+    ) : <Setting />
+
+    const mainHtml = filterFiles && filterFiles.length > 0 ? (
+        <Tabs onChange={tabChange} centered>
+            {
+                data.map(item => {
+                    return <Tabs.TabPane tab={item.cateName} key={item.key}>
+                        {contentHtml}
+                    </Tabs.TabPane>
+                })
+            }
+        </Tabs>) : <Setting />
 
     return (
-        <div className="App">
+        <div className={style.app}>
             {
-                data.length > 1 ? (
-                    <Tabs onChange={tabChange} centered>
-                        {
-                            data.map(item => {
-                                return <Tabs.TabPane tab={item.cateName} key={item.key}>
-                                    {contentHtml}
-                                </Tabs.TabPane>
-                            })
-                        }
-                    </Tabs>
-                ) : contentHtml
+                filterFiles && filterFiles.length > 0 ?
+                    <div className={style["reset-wrap"]}>
+                        <a onClick={openSetting} className={style.reset}>重新设置组件路径</a>
+                    </div>
+                    : null
+            }
+            {
+                data.length > 1 ? mainHtml : data.length === 1 ? contentHtml : <Setting />
             }
         </div>
     );

@@ -18,19 +18,31 @@ export function activate(context: vscode.ExtensionContext) {
     // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerCommand('material.start', async () => {
         const viewColumn = vscode.ViewColumn.Nine
-        
-        if (currentPanel) {
+        const settingData: [] | undefined = context.workspaceState.get('settingData');
+        if (currentPanel && !settingData) {
             // 如果我们已经有了一个面板，那就把它显示到目标列布局中
             currentPanel.reveal(viewColumn);
         } else {
             currentPanel = vscode.window.createWebviewPanel(
-                'materialLibrary',
-                'Material Library',
+                'rcHelper',
+                'rc helper',
                 viewColumn,
                 {
                     enableScripts: true
                 }
             )
+
+            // 处理webview中的信息
+            currentPanel.webview.onDidReceiveMessage(async message => {
+                switch (message.command) {
+                    case 'insertComponent':
+                        await insertComponent(message.text, message.cateInfo)
+                    case 'settingData':
+                        await context.workspaceState.update('settingData', message.settingData)
+                        vscode.commands.executeCommand('material.start')
+                        return;
+                }
+            }, undefined, context.subscriptions);
 
             const rootFolders = vscode.workspace.workspaceFolders;
             let rootFolder: any = '';
@@ -38,28 +50,41 @@ export function activate(context: vscode.ExtensionContext) {
                 rootFolder = rootFolders[0].uri.path.slice(1)
             }
 
-            const componentFolders: { key: string, cateName?: string, importPath?: string, path: string }[] = []
+            let componentFolders: { key: string, cateName?: string, importPath?: string, path: string }[] = []
             const directories: object[] = []
 
-            componentFolders.push({
-                key: 'component/biz',
-                cateName: '业务组件',
-                importPath: '@components/biz',
-                path: path.join(rootFolder, '/src/components/biz')
-            },
-                {
-                    key: 'component/widgets',
-                    cateName: '基础组件',
-                    importPath: '@components/widgets',
-                    path: path.join(rootFolder, '/src/components/widgets')
+            if (settingData && settingData.length && settingData.length > 0) {
+                componentFolders = settingData.map((item: any) => {
+                    return {
+                        key: item.foldPath,
+                        cateName: item.foldName,
+                        importPath: '@components/biz',
+                        path: path.join(rootFolder, item.foldPath)
+                    }
                 })
+            } else {
+                componentFolders.push({
+                    key: 'component/biz',
+                    cateName: '业务组件',
+                    importPath: '@components/biz',
+                    path: path.join(rootFolder, '/src/components/biz')
+                },
+                    {
+                        key: 'component/widgets',
+                        cateName: '基础组件',
+                        importPath: '@components/widgets',
+                        path: path.join(rootFolder, '/src/components/widgets')
+                    })
+            }
+
 
 
             for (let i = 0; i < componentFolders.length; i++) {
                 const componentFoldersUri = vscode.Uri.file(componentFolders[i].path)
-                const res = await vscode.workspace.fs.readDirectory(componentFoldersUri)
                 const snapshot: any = {}
+                let res: any = {}
                 try {
+                    res = await vscode.workspace.fs.readDirectory(componentFoldersUri)
                     for (let j = 0; j < res.length; j++) {
                         const snapshotFilePath = vscode.Uri.file(componentFolders[i].path + '/' + res[j][0] + '/' + 'snapshot.jpg')
                         // console.log('snapshotFilePath',snapshotFilePath)
@@ -92,14 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
                 context.subscriptions
             );
 
-            // 处理webview中的信息
-            currentPanel.webview.onDidReceiveMessage(async message => {
-                switch (message.command) {
-                    case 'insertComponent':
-                        await insertComponent(message.text, message.cateInfo)
-                        return;
-                }
-            }, undefined, context.subscriptions);
+
 
             onChangeActiveTextEditor(context)
         }
@@ -117,16 +135,16 @@ async function getHtmlContent(extensionPath: string) {
     const dirPath = path.dirname(resourcePath);
     try {
         //开发环境
-        // const response = await fetch('http://localhost:3000');
-        // let html = await response.text();
-        // html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
-        //     return $1 + 'http://localhost:3000' + $2 + '"';
-        // });
-        //生产环境
-        let html = fs.readFileSync(resourcePath, 'utf-8');
+        const response = await fetch('http://localhost:3000');
+        let html = await response.text();
         html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
-            return $1 + vscode.Uri.file(path.resolve(dirPath, `.${$2}`)).with({ scheme: 'vscode-resource' }).toString() + '"';
+            return $1 + 'http://localhost:3000' + $2 + '"';
         });
+        //生产环境
+        // let html = fs.readFileSync(resourcePath, 'utf-8');
+        // html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
+        //     return $1 + vscode.Uri.file(path.resolve(dirPath, `.${$2}`)).with({ scheme: 'vscode-resource' }).toString() + '"';
+        // });
         return html;
     } catch (error) {
         console.log(error)
