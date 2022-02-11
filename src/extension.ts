@@ -136,16 +136,16 @@ async function getHtmlContent(extensionPath: string) {
     const dirPath = path.dirname(resourcePath);
     try {
         //开发环境
-        const response = await fetch('http://localhost:3000');
-        let html = await response.text();
-        html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
-            return $1 + 'http://localhost:3000' + $2 + '"';
-        });
-        //生产环境
-        // let html = fs.readFileSync(resourcePath, 'utf-8');
+        // const response = await fetch('http://localhost:3000');
+        // let html = await response.text();
         // html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
-        //     return $1 + vscode.Uri.file(path.resolve(dirPath, `.${$2}`)).with({ scheme: 'vscode-resource' }).toString() + '"';
+        //     return $1 + 'http://localhost:3000' + $2 + '"';
         // });
+        //生产环境
+        let html = fs.readFileSync(resourcePath, 'utf-8');
+        html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
+            return $1 + vscode.Uri.file(path.resolve(dirPath, `.${$2}`)).with({ scheme: 'vscode-resource' }).toString() + '"';
+        });
         return html;
     } catch (error) {
         console.log(error)

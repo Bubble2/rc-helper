@@ -4,6 +4,9 @@
     "description": "search your project components, the automatic insert it to your pages",
     "version": "1.0.1",
     "publisher": "guozhaodong",
+    "repository": {
+        "url": "https://github.com/Bubble2/rc-helper.git"
+    },
     "engines": {
         "vscode": "^1.60.0"
     },
