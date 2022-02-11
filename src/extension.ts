@@ -36,11 +36,12 @@ export function activate(context: vscode.ExtensionContext) {
             currentPanel.webview.onDidReceiveMessage(async message => {
                 switch (message.command) {
                     case 'insertComponent':
-                        await insertComponent(message.text, message.cateInfo)
+                        await insertComponent(message.text, message.cateInfo);
+                        break;
                     case 'settingData':
-                        await context.workspaceState.update('settingData', message.settingData)
-                        vscode.commands.executeCommand('material.start')
-                        return;
+                        await context.workspaceState.update('settingData', message.settingData);
+                        vscode.commands.executeCommand('material.start');
+                        break;
                 }
             }, undefined, context.subscriptions);
 
@@ -58,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
                     return {
                         key: item.foldPath,
                         cateName: item.foldName,
-                        importPath: '@components/biz',
+                        importPath: item.importPath,
                         path: path.join(rootFolder, item.foldPath)
                     }
                 })

@@ -36,6 +36,15 @@ export default () => {
                                     >
                                         <Input placeholder={fields.length > 1 ? "组件类目文件夹地址" : "组件文件夹地址"} />
                                     </Form.Item>
+                                    <Form.Item
+                                        {...restField}
+                                        label={<></>}
+                                        colon={false}
+                                        name={[name, 'importPath']}
+                                        rules={[{ required: true, message: '组件import路径不能为空！' }]}
+                                    >
+                                        <Input placeholder="组件import路径" />
+                                    </Form.Item>
                                     {
                                         fields.length > 1 ? (
                                             <>
@@ -48,6 +57,8 @@ export default () => {
                                                 >
                                                     <Input placeholder="组件类目名称" />
                                                 </Form.Item>
+
+
                                             </>
                                         ) : null
                                     }

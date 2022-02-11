@@ -1,11 +1,11 @@
 {
     "name": "rc-helper",
-    "displayName": "rc helper",
+    "displayName": "RC Helper",
     "description": "search your project components, the automatic insert it to your pages",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "guozhaodong",
     "engines": {
-        "vscode": "^1.8.0"
+        "vscode": "^1.60.0"
     },
     "categories": [
         "react"

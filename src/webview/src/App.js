@@ -138,7 +138,7 @@ function App() {
                     : null
             }
             {
-                data.length > 1 ? mainHtml : data.length === 1 ? contentHtml : <Setting />
+                data.length > 1 && filterFiles && filterFiles.length > 1 ? mainHtml : (data.length === 1 && filterFiles && filterFiles.length > 0) ? contentHtml : <Setting />
             }
         </div>
     );
