@@ -11,6 +11,7 @@ function App() {
     const [data, setData] = useState([]);
     const [tabKey, setTabKey] = useState();
     const [searchKey, setSearchKey] = useState();
+    const isSettingRef = useRef(false);
 
     useEffect(() => {
         // const message = window.message;
@@ -70,17 +71,23 @@ function App() {
     }, [files, searchKey])
 
     const onChange = e => {
+        isSettingRef.current = false
         setSearchKey(e.target.value);
     }
 
     const openSetting = () => {
+        isSettingRef.current = true;
         window.vscodeInstance.postMessage({
             command: 'settingData',
             settingData: []
         })
     }
 
-    const contentHtml = filterFiles && filterFiles.length > 0 ? (
+    useEffect(() => {
+        isSettingRef.current = true;
+    }, [])
+
+    const contentHtml = (
         <div>
             <div className={style.search}>
                 <Input
@@ -115,9 +122,9 @@ function App() {
                 }
             </ul>
         </div>
-    ) : <Setting />
+    )
 
-    const mainHtml = filterFiles && filterFiles.length > 0 ? (
+    const mainHtml = (
         <Tabs onChange={tabChange} centered>
             {
                 data.map(item => {
@@ -126,20 +133,27 @@ function App() {
                     </Tabs.TabPane>
                 })
             }
-        </Tabs>) : <Setting />
+        </Tabs>);
+
+    let pageHtml = null;
+    if (!isSettingRef.current || (data.length > 1 && filterFiles && filterFiles.length > 1)) {
+        pageHtml = mainHtml
+    } else if (!isSettingRef.current || (data.length === 1 && filterFiles && filterFiles.length > 0)) {
+        pageHtml = contentHtml
+    } else {
+        pageHtml = <Setting />
+    }
 
     return (
         <div className={style.app}>
             {
-                filterFiles && filterFiles.length > 0 ?
+                (!isSettingRef.current || (filterFiles && filterFiles.length > 0)) ?
                     <div className={style["reset-wrap"]}>
                         <a onClick={openSetting} className={style.reset}>重新设置组件路径</a>
                     </div>
                     : null
             }
-            {
-                data.length > 1 && filterFiles && filterFiles.length > 1 ? mainHtml : (data.length === 1 && filterFiles && filterFiles.length > 0) ? contentHtml : <Setting />
-            }
+            {pageHtml}
         </div>
     );
 }
